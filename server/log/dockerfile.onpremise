@@ -1,0 +1,51 @@
+# Этап 1: Установка зависимостей и обфускация
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+# Устанавливаем зависимости для сборки
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc python3-dev libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копируем requirements.txt и устанавливаем зависимости
+COPY server/log/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt \
+    && pip install pyarmor
+
+# Копируем только необходимые файлы
+COPY server/log /app/server/log
+COPY database/database.py /app/database/database.py
+
+# Обфусцируем все файлы
+RUN pyarmor gen --recursive --output /app/dist-log /app/server/log \
+    && pyarmor gen --output /app/dist-db /app/database/database.py
+
+# Копируем runtime-модуль PyArmor в site-packages
+RUN cp -r /app/dist-log/pyarmor_runtime_000000 /usr/local/lib/python3.12/site-packages/ \
+    && rm -rf /app/dist-log/pyarmor_runtime_000000  # Удаляем, чтобы не дублировать
+
+# Проверяем результат
+RUN ls -R /app/dist-log
+
+# Этап 2: Финальный минимальный образ
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Создаём пользователя без root-привилегий
+RUN useradd -m appuser
+USER appuser
+
+# Копируем зависимости
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Копируем обфусцированный код
+COPY --from=builder /app/dist-log /app/server
+COPY --from=builder /app/dist-db /app/database
+
+EXPOSE 8025
+ENV PYTHONPATH=/app
+
+CMD ["python", "server/log/app.py"]

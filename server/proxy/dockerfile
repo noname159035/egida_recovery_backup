@@ -1,0 +1,22 @@
+FROM python:3.12
+
+WORKDIR /app
+
+# Копируем requirements.txt и устанавливаем зависимости
+COPY server/proxy/requirements.txt /app/server/proxy/requirements.txt
+RUN pip install --no-cache-dir -r /app/server/proxy/requirements.txt
+
+# Копируем всю директорию server
+COPY server/proxy /app/server/proxy
+COPY database/database.py /app/database/database.py
+COPY server/classifier /app/server/classifier
+
+# Копируем директорию database
+COPY database /app/database
+
+# Устанавливаем PYTHONPATH, чтобы Python мог находить модули server и database
+ENV PYTHONPATH=/app
+
+EXPOSE 8080
+
+CMD ["python", "server/proxy/app.py"]

@@ -1,0 +1,48 @@
+@font-face {
+  font-family: 'AnonymousPro-Bold';
+  src: url('../fonts/AnonymousPro-Bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AnonymousPro-BoldItalic';
+  src: url('../fonts/AnonymousPro-BoldItalic.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AnonymousPro-Italic';
+  src: url('../fonts/AnonymousPro-Italic.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AnonymousPro-Regular';
+  src: url('../fonts/AnonymousPro-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('../fonts/Jost.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Jost-Italic';
+  src: url('../fonts/Jost-Italic.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NunitoSans';
+  src: url('../fonts/NunitoSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

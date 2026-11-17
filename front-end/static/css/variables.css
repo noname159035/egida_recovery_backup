@@ -1,0 +1,49 @@
+:root {
+  --local_page_color: #0F0F1C;
+  --main_text_not_selected: #EDDCF5;
+  --component_content_text: #8E8D9D;
+  --main_text_selected: #FFFFFF;
+  --border_color: #323047;
+  --background_nav_color: #F8F8F8;
+  --background_nav_color_hover: #E9E9E9;
+  --main_page_background_color: #080813;
+
+  --input_color: #9A94B2;
+
+  --stat_red: #B91316;
+  --stat_red_light: #EA8C8E;
+  --stat_gold: #E4C75D;
+  --stat_gold_light: #FFEDAB;
+  --stat_purp: #B0A6DF;
+  --stat_purp_light: #E2DCFF;
+  --stat_green: #78923B;
+  --stat_green_light: #C0D887;
+
+  --main_page_color: #FFFFFF;
+  --main_page_text_color: #000000;
+  --chat_border_color: #D9D9D9;
+
+  --request_block_color: #574295;
+  --response_block_color: #F0F0F0;
+  --chat_block_color: #DAD0DF;
+  --chat_text_color: #403F53;
+
+  --simpe_button_color: #FFFFFF;
+  --simpe_button_color_hover: #F8F8F8;
+  --simpe_button_color_active: #EEEEEE;
+  --filter_text: #8E8D9D;
+
+  --stat_critical_color: #A626C6;
+  --stat_high_color: #CFB1F8;
+  --stat_normal_color: #8CD2E6;
+  --stat_low_color: #40B2FF;
+
+  --modal_background: #131222;
+  --modal_inner_background: #17162B;
+
+  --switcher_background_start: #141325;
+  --switcher_background_end: #211C47;
+
+  --gradiend_container_background: #17162B;
+  --gradiend_container_text: #8E8D9D;
+}

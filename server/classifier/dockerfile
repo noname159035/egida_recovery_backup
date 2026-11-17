@@ -1,0 +1,17 @@
+FROM python:3.12
+
+WORKDIR /app
+
+# Копируем requirements.txt и устанавливаем зависимости
+COPY server/classifier/requirements.txt /app/server/classifier/requirements.txt
+RUN pip install --no-cache-dir -r /app/server/classifier/requirements.txt
+
+# Копируем только необходимые файлы
+COPY server/classifier /app/server/classifier
+
+# Устанавливаем PYTHONPATH, чтобы Python мог находить модули server
+ENV PYTHONPATH=/app
+
+EXPOSE 5002
+
+CMD ["python", "server/classifier/classifier.py"]

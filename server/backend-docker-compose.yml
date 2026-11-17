@@ -1,0 +1,117 @@
+version: '3.8'
+services:
+  proxy:
+    build:
+      context: ../  # Корневая директория проекта
+      dockerfile: ./server/proxy/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - RESPOND_URL=http://llm:8000/respond
+      - LOGGER_URL=http://log:8025/logger
+      - CLASSIFY_URL=http://classifier:5002/classify
+      - HOST_IP=db  # Используем имя сервиса db для подключения к базе данных
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=log_bd_linux
+      - POSTGRES_PORT=5432
+    depends_on:
+      - classifier
+      - llm
+      - log
+  classifier:
+    build:
+      context: .  # Корневая директория проекта
+      dockerfile: ./classifier/Dockerfile
+    environment:
+    ports:
+      - "5002:5002"
+  llm:
+    build:
+      context: .  # Корневая директория проекта
+      dockerfile: ./llm/Dockerfile
+
+  log:
+    build:
+      context: ../  # Корневая директория проекта
+      dockerfile: ./server/log/Dockerfile
+    ports:
+      - "8025:8025"
+    environment:
+      - HOST_IP=db  # Используем имя сервиса db для подключения к базе данных
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=log_bd_linux
+      - POSTGRES_PORT=5432
+  db:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "habrdb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - ../database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+
+  telegram-bot:
+    build:
+      context: ../  # Корневая директория проекта
+      dockerfile: ./telegram_bot/Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - PROXY_URL=http://proxy:8080/api/v1/llm-proxy
+      - BOT_TOKEN=7810848273:AAF93eQ7UH-miZTDPL_nrHgJLdxvoZ5tVzw
+      - HOST_IP=db  # Используем имя сервиса db для подключения к базе данных
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=log_bd_linux
+      - POSTGRES_PORT=5432
+    depends_on:
+      - proxy
+  # VictoriaMetrics Single-node
+  # victoria-metrics:
+  #   image: victoriametrics/victoria-metrics:latest
+  #   container_name: demo_victoria_metrics
+  #   ports:
+  #     - "8429:8429" # Порт для HTTP API
+  #   command:
+  #     - '--promscrape.config=/etc/victoria-metrics-config/victoria-metrics-config.yml' # Указываем путь к конфигу
+  #     - '--storageDataPath=/victoria-metrics-data'
+  #     - '--httpListenAddr=:8429'
+  #   volumes:
+  #     - ./victoria-metrics-config:/etc/victoria-metrics-config # Монтируем конфиг
+  #     - victoria_metrics_data:/victoria-metrics-data
+  #   depends_on:
+  #     - proxy
+  #     - classifier
+  #     - llm
+  #     - log
+
+  # # Grafana для визуализации метрик
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: demo_grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #   depends_on:
+  #     - victoria-metrics
+
+# volumes:
+#   victoria_metrics_data:
+#   grafana_data:
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    # Use a custom driver
+    driver: bridge

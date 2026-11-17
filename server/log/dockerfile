@@ -1,0 +1,8 @@
+FROM python:3.12
+WORKDIR /app
+COPY ./server/log/requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ./server/log /app
+COPY ./database/database.py /app/database/database.py
+EXPOSE 8025
+CMD ["python", "app.py"]

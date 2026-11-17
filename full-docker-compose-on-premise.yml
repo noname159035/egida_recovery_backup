@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: server/proxy/dockerfile.onpremise
+    ports:
+      - "8080:8080"
+    environment:
+      - LOGGER_URL=http://log:8025/logger
+      - HOST_IP=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    depends_on:
+      - log
+      - db
+    networks:
+      - app-network
+
+  classifier:
+    build:
+      context: .
+      dockerfile: server/classifier/dockerfile.onpremise
+    depends_on:
+      - proxy
+    networks:
+      - app-network
+
+  log:
+    build:
+      context: .
+      dockerfile: server/log/dockerfile.onpremise
+    ports:
+      - "8025:8025"
+    environment:
+      - HOST_IP=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13.3-alpine
+    environment:
+      POSTGRES_DB: "habrdb"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./database/pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PROXY_URL=http://proxy:8080/api/v1/llm-proxy
+      - LOGGER_URL=http://log:8025
+    depends_on:
+      - proxy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
